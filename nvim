@@ -18,6 +18,8 @@ if [ -n "$2" ]; then
         passed_path="$2"
     elif [ "$2" = "." ] || [ "$2" = "./" ]; then
         passed_path="$1"
+    elif [ "$2" = ".." ] || [ "$2" = "../" ]; then
+        passed_path=$(dirname "$1")
     else
         passed_path="$1/$2"
     fi
@@ -74,14 +76,21 @@ inner_path=""
 if [ -z $2 ]; then
     inner_path=""
 else
-    inner_path=" $2"
+    inner_path=" ."
 fi
-
-# if inner_path is a file, go up one level
 
 if [ -f "$passed_path" ]; then
+    # inner path = the last file in the path, so ~/dev/test.txt -> test.txt
+    inner_path=" $(basename "$passed_path")"
     passed_path=$(dirname "$passed_path")
 fi
+cd "$passed_path"
+
+echo docker run --rm -it \
+    --volumes-from $main_container_name \
+    -v $passed_path:/mnt/volume \
+    --workdir /mnt/volume \
+    $image_name nvim$inner_path 
 
 docker run --rm -it \
     --volumes-from $main_container_name \
