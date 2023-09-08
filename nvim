@@ -1,0 +1,59 @@
+#!/bin/bash
+
+image_name="nvim-alpine"
+main_container_name="nvim-main"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -n "$script_dir/clipboard.txt" ]; then
+    rm -rf "$script_dir/clipboard.txt"
+fi
+touch "$script_dir/clipboard.txt"
+
+if [ "$2" = "." ] || [ "$2" = "./" ]; then
+    set -- "$1" ""
+fi
+
+if [ -z "$(docker images -q $image_name)" ]; then
+    echo "Image does not exist. Building now..."
+    docker-buildx build -t $image_name $script_dir
+fi
+
+if [ ! "$(docker ps -aq -f name=$main_container_name)" ]; then
+    echo "Container does not exist. Creating now..."
+    docker run -itd \
+        --name $main_container_name \
+        -v $script_dir/.config/nvim:/root/.config/nvim \
+        -v nvim_state:/root/.local/state/nvim \
+        -v nvim_share:/root/.local/share/nvim \
+        -v $script_dir/clipboard.txt:/root/clipboard-sync/clipboard.txt \
+        $image_name
+fi
+
+(file_path="$script_dir/clipboard.txt"
+while true; do
+  content=$(cat "$file_path" | sed -e '$ d')
+  if [ "$content" != "" ]; then
+    if [ -n pbcopy ]; then
+      pbcopy < "$file_path"
+    elif [ -n xclip ]; then
+      xclip -selection clipboard < "$file_path"
+    elif [ -n xsel ]; then
+      xsel --clipboard < "$file_path"
+    else
+      break
+    fi
+    echo "" > "$file_path"
+  fi
+
+  sleep 1
+done) &
+
+clipboard_pid=$!
+
+docker run --rm -it \
+    --volumes-from $main_container_name \
+    -v $1/$2:/mnt/volume \
+    --workdir /mnt/volume \
+    $image_name nvim $2
+
+kill $clipboard_pid
+
