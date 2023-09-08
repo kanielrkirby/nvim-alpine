@@ -2,15 +2,35 @@
 
 image_name="nvim-alpine"
 main_container_name="nvim-main"
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script="${BASH_SOURCE[0]}"
+script_dir="$(cd "$(dirname "${script}")" && pwd)"
+
+
+if [ -z "$1" ]; then
+    echo "Usage: nvim <path> <file>"
+    exit 1
+fi
+
+passed_path=""
+
+if [ -n "$2" ]; then
+    if [ "${2:0:1}" = "/" ]; then
+        passed_path="$2"
+    elif [ "$2" = "." ] || [ "$2" = "./" ]; then
+        passed_path="$1"
+    else
+        passed_path="$1/$2"
+    fi
+else
+    passed_path="$1"
+fi
+
+
 if [ -n "$script_dir/clipboard.txt" ]; then
     rm -rf "$script_dir/clipboard.txt"
 fi
-touch "$script_dir/clipboard.txt"
 
-if [ "$2" = "." ] || [ "$2" = "./" ]; then
-    set -- "$1" ""
-fi
+touch "$script_dir/clipboard.txt"
 
 if [ -z "$(docker images -q $image_name)" ]; then
     echo "Image does not exist. Building now..."
@@ -49,11 +69,25 @@ done) &
 
 clipboard_pid=$!
 
+inner_path=""
+
+if [ -z $2 ]; then
+    inner_path=""
+else
+    inner_path=" $2"
+fi
+
+# if inner_path is a file, go up one level
+
+if [ -f "$passed_path" ]; then
+    passed_path=$(dirname "$passed_path")
+fi
+
 docker run --rm -it \
     --volumes-from $main_container_name \
-    -v $1/$2:/mnt/volume \
+    -v $passed_path:/mnt/volume \
     --workdir /mnt/volume \
-    $image_name nvim $2
+    $image_name nvim$inner_path 
 
 kill $clipboard_pid
 
