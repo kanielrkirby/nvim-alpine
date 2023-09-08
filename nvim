@@ -86,12 +86,6 @@ if [ -f "$passed_path" ]; then
 fi
 cd "$passed_path"
 
-echo docker run --rm -it \
-    --volumes-from $main_container_name \
-    -v $passed_path:/mnt/volume \
-    --workdir /mnt/volume \
-    $image_name nvim$inner_path 
-
 docker run --rm -it \
     --volumes-from $main_container_name \
     -v $passed_path:/mnt/volume \
