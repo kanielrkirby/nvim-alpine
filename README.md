@@ -12,7 +12,7 @@ nvim-alpine is a personalized Neovim configuration that utilizes Docker containe
 
 ## Prerequisites
 
-- Requires Docker
+- Requires `docker` CLI or `nerdctl`.
 - `pbcopy`, `xsel`, or `xclip` if you want system clipboard register to work in NeoVim.
 
 ## Setup
@@ -25,21 +25,20 @@ Clone the repository to your local machine:
 git clone https://github.com/piratey7007/nvim-alpine.git
 ```
 
-#### Step 2: Add an Alias or Symlink
+#### Step 2: Add to path
 
-##### Add an Alias
+I personally opt for `dvim` for mine, but you can rename it to anything.
 
-I personally opt for `dvim` as my alias, but you can use anything. Just make sure you include `pwd` as the first argument.
-
-Add the following line to your shell profile (~/.bashrc, ~/.zshrc, etc.):
+You can run the following line when you're ready:
 
 ```bash
-alias dvim='path/to/cloned/repo/nvim pwd'
+cp /path/to/nvim/executable /usr/local/bin
 ```
 
-## Caveat
+## Caveats
 
-The initial installation will take a short bit, as it will need to pull the Alpine image, and install the plugins.
+- The initial installation will take a short bit, as it will need to pull the Alpine image, and install the plugins.
+- Sometimes I've noticed permissions issues come up relating to the volume mounting. If you find any, let me know, or submit a PR please!
 
 ## Usage
 
@@ -48,6 +47,10 @@ Now you can run `dvim` from any terminal window:
 ```bash
 dvim ./dev
 ```
+
+## Customization
+
+The `Dockerfile`, `clipboard.txt`, and `.config` get stored in `$HOME/.local/share/nvim-alpine/` after running the first time. If you want to customize anything, it's all stored there, so either delete or replace it.
 
 ## Contributions
 
