@@ -1,0 +1,118 @@
+#!/bin/bash
+
+# ================================
+# Configuration Section
+# ================================
+image_name="nvim-alpine"
+main_container_name="nvim-main"
+resources_dir="$HOME/.local/share/nvim-alpine"
+containerizer=${NVIM_ALPINE_CONTAINERIZER:-docker}
+builder="docker-buildx"
+path="$PWD/"
+CMD=""
+if [ "${path:0:1}" = "/" ]; then
+    path=""
+fi
+nvim_path=""
+if [ -z "$1" ] || [ "$1" = "." ] || [ "$1" = "./" ]; then
+    path="$PWD"
+    nvim_path=" $1"
+elif [ "$1" = "/" ]; then
+    path="/"
+    nvim_path=" ."
+elif [ -d "$1" ]; then
+    path="$PWD/$1"
+    nvim_path=" ."
+elif [ -f "$1" ]; then
+    path="$(dirname "$PWD/$1")"
+    nvim_path=" $1"
+fi
+
+# ================================
+# Pre-checks
+# ================================
+if [ "$containerizer" = "nerdctl" ] && [ ! -d "/opt/cni/bin" ]; then
+    echo "CNI plugins not found. Please install CNI plugins before proceeding."
+    exit 1
+elif [ "$containerizer" = "docker" ] && [ -z "$(command -v docker-buildx)" ]; then
+    builder = "docker"
+elif [ "$containerizer" = "nerdctl" ]; then
+    builder = "nerdctl"
+fi
+
+# ================================
+# Clipboard Setup
+# ================================
+if [ -e "$resources_dir/clipboard.txt" ]; then
+    rm -rf "$resources_dir/clipboard.txt"
+fi
+touch "$resources_dir/clipboard.txt"
+
+# ================================
+# Image and Container Checks
+# ================================
+if [ -z "$($containerizer images -q $image_name)" ]; then
+    echo "Image does not exist. Building now..."
+    CMD="$builder build -t $image_name $resources_dir"
+    if [[ "$SUDO_USER" ]]; then
+        CMD="sudo $CMD"
+    fi
+    $CMD
+fi
+
+if [ ! "$($containerizer ps -aq -f name=$main_container_name)" ]; then
+    echo "Container does not exist. Creating now..."
+    CMD="$containerizer run -d \
+        --name $main_container_name \
+        -v $resources_dir/.config/nvim:/root/.config/nvim \
+        -v nvim_state:/root/.local/state/nvim \
+        -v nvim_share:/root/.local/share/nvim \
+        -v $resources_dir/clipboard.txt:/root/clipboard-sync/clipboard.txt \
+        $image_name"
+    if [[ "$SUDO_USER" ]]; then
+        CMD=sudo $CMD
+    fi
+    $CMD
+fi
+
+# ================================
+# Clipboard Sync
+# ================================
+(file_path="$resources_dir/clipboard.txt"
+while true; do
+    content=$(cat "$file_path" | sed -e '$ d')
+    if [ "$content" != "" ]; then
+        if [ -n "$(command -v pbcopy)" ]; then
+            pbcopy < "$file_path"
+        elif [ -n "$(command -v xclip)" ]; then
+            xclip -selection clipboard < "$file_path"
+        elif [ -n "$(command -v xsel)" ]; then
+            xsel --clipboard < "$file_path"
+        else
+            break
+        fi
+        echo "" > "$file_path"
+    fi
+    sleep 1
+done) &
+
+clipboard_pid=$!
+
+# ================================
+# Run nvim
+# ================================
+CMD="$containerizer run --rm -it \
+    --volumes-from $main_container_name \
+    -v $path:/mnt/volume \
+    --workdir /mnt/volume \
+    $image_name nvim$nvim_path"
+if [[ "$SUDO_USER" ]]; then
+    CMD="sudo $CMD"
+fi
+$CMD
+
+# ================================
+# Cleanup
+# ================================
+kill $clipboard_pid
+
