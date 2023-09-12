@@ -34,7 +34,7 @@ cd /path/to/setup
 ./setup
 ```
 
-This will copy the necessary requirements into a new `~/.local/nvim-alpine/` folder, as well as add the `dvim` command to your `/usr/local/bin`. You can now remove the cloned repository if you want.
+This will copy the necessary files into a new `~/.local/share/nvim-alpine/` folder, as well as add the `dvim` command to your `/usr/local/bin`. You can now remove the cloned repository if you want.
 
 ## Caveats
 
