@@ -1,0 +1,8 @@
+#!/bin/bash
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+resource_dir="$HOME/.local/share/nvim-alpine"
+cp -r $script_dir/.config $resource_dir
+cp -r $script_dir/Dockerfile $resource_dir
+cp -r $script_dir/config.cfg $resource_dir
+touch clipboard.txt $resource_dir
