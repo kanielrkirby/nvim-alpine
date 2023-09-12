@@ -14,6 +14,10 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
     {
+        "wbthomason/packer.nvim",
+        lazy = false,
+    },
+    {
         "nvim-treesitter/nvim-treesitter",
         event = "BufRead",
         config = function()
@@ -83,26 +87,24 @@ require("lazy").setup({
     -- LSP
     {
         'neovim/nvim-lspconfig',
-        cmd = 'LspInfo',
-        event = {'BufReadPre', 'BufNewFile'},
         dependencies = {
             {'hrsh7th/cmp-nvim-lsp'},
             {'williamboman/mason-lspconfig.nvim'},
             {'williamboman/mason.nvim'},
         },
         config = function()
-            local lsp = require('lsp-zero').preset({})
+            local lsp = require('lsp-zero')
             local lspconfig = require('lspconfig')
 
             vim.cmd [[
             au BufRead,BufNewFile yabairc set filetype=sh
             ]]
 
-
             lsp.ensure_installed({
                 'astro',
                 'tsserver',
                 'eslint',
+                'lua_ls',
                 'emmet_language_server',
                 'astro',
                 'bashls',
@@ -149,6 +151,7 @@ require("lazy").setup({
     {
         "zbirenbaum/copilot.lua",
         cmd = "Copilot",
+        lazy = true,
         event = "InsertEnter",
         config = function()
             require("copilot").setup({

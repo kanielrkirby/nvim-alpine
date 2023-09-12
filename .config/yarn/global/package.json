@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "create-astro": "^4.0.2",
+    "curlx": "^0.0.12",
+    "tailwindcss": "^3.3.3"
+  }
+}

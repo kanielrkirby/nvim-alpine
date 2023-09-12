@@ -1,0 +1,19 @@
+
+2023/03/03 (12:07:49) | ===> btop++ v.1.2.13
+2023/03/03 (12:07:49) | INFO: Logger set to INFO
+2023/03/03 (12:07:50) | INFO: Logger set to DEBUG
+2023/03/03 (12:07:50) | INFO: Logger set to INFO
+2023/03/03 (12:07:53) | INFO: Logger set to INFO
+
+2023/03/03 (15:04:02) | ===> btop++ v.1.2.13
+2023/03/03 (15:04:02) | DEBUG: Starting in DEBUG mode!
+2023/03/03 (15:04:02) | INFO: Logger set to DEBUG
+2023/03/03 (15:04:02) | DEBUG: Using locale en_US.UTF-8
+2023/03/03 (15:04:02) | INFO: Running on /dev/ttys000
+2023/03/03 (15:04:02) | DEBUG: get_sensors(): show_coretemp=1 check_temp=1
+2023/03/03 (15:04:02) | DEBUG: M1 sensors found
+2023/03/03 (15:04:02) | DEBUG: Loading theme file: /opt/homebrew/Cellar/btop/1.2.13/share/btop/themes/tokyo-night.theme
+2023/03/03 (15:04:03) | INFO: Quitting! Runtime: 00:00:01
+
+2023/03/17 (13:35:24) | ===> btop++ v.1.2.13
+2023/03/17 (13:35:24) | ERROR: Stall in Runner thread, restarting!
