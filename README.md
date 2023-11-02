@@ -1,8 +1,9 @@
 # nvim-alpine
 
-## Overview
+![](https://img.shields.io/badge/Docker-1D63ED?style=for-the-badge&logo=docker&logoColor=white)
+![](https://img.shields.io/badge/NeoVim-%23092E20.svg?&style=for-the-badge&logo=neovim&logoColor=white)
 
-nvim-alpine is a personalized Neovim configuration that utilizes Docker containers and volumes to provide a consistent and isolated development environment. With built-in clipboard support using `pbcopy`, `xclip`, `xsel`, and `wl-copy`, you can seamlessly copy and paste text between your editor and other applications.
+My personalized Neovim configuration that utilizes Docker containers and volumes to provide a consistent and isolated development environment. With built-in clipboard support using `pbcopy`, `xclip`, `xsel`, and `wl-copy`, you can seamlessly copy and paste text between your editor and other applications.
 
 ## Features
 
